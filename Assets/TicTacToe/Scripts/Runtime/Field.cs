@@ -4,14 +4,16 @@ using System.Linq;
 using Runtime.Enums;
 using Runtime.Models;
 using UnityEngine.Events;
-using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine;
 
 namespace Runtime
 {
+    [RequireComponent(typeof(AudioSource))]
     public class Field : MonoBehaviour
     {
         public event UnityAction<Player> PlayerWon;
+        public event UnityAction Draw;
         
         [SerializeField] private LineRenderer _winLine;
         [SerializeField] private float _restartDelay = 2f;
@@ -34,12 +36,14 @@ namespace Runtime
         };
         
         private readonly Cell[,] _cells = new Cell[3, 3];
+        private AudioSource _audioSource;
 
         public FieldState State { get; private set; } = FieldState.WaitingForTurn;
 
         private void Awake()
         {
             InitCells();
+            _audioSource = GetComponent<AudioSource>();
         }
 
         private void OnEnable()
@@ -57,6 +61,10 @@ namespace Runtime
             Player winner = CheckForWinner(out WinCombination combination);
             
             if (winner is not null) OnWin(winner, combination);
+
+            bool isDraw = CheckForDraw();
+            
+            if (isDraw) OnDraw();
         }
         
         /// <summary>
@@ -94,12 +102,29 @@ namespace Runtime
             return null;
         }
 
+        private bool CheckForDraw()
+        {
+            bool result = true;
+            
+            foreach(Cell cell in _cells) if (!cell.IsOccupied) result = false;
+            
+            return result;
+        }
+
         private void OnWin(Player player, WinCombination combination)
         {
             State = FieldState.Finished;
             DrawLine(combination.Coordinates);
             StartCoroutine(RestartDelayedCoroutine(_restartDelay));
+            _audioSource.Play();
             PlayerWon?.Invoke(player);
+        }
+
+        private void OnDraw()
+        {
+            State = FieldState.Finished;
+            StartCoroutine(RestartDelayedCoroutine(_restartDelay));
+            Draw?.Invoke();
         }
 
         private void DrawLine(Vector2Int[] coords)

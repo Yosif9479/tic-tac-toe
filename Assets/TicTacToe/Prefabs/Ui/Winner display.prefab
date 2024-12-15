@@ -91,6 +91,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _iconSpriteRenderer: {fileID: 1446461597246906387}
   _panel: {fileID: 4342729107531684681}
+  _displayText: {fileID: 5988774381594323214}
   _field: {fileID: 0}
 --- !u!1 &4342729107531684681
 GameObject:

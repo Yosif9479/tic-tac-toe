@@ -6,12 +6,14 @@ using UnityEngine.EventSystems;
 
 namespace Runtime
 {
+    [RequireComponent(typeof(AudioSource))]
     public class Cell : MonoBehaviour, IPointerClickHandler
     {
         public static event UnityAction Occupied;
         
         [SerializeField] private SpriteRenderer _iconSpriteRenderer;
         
+        private AudioSource _audioSource;
         private TurnManager _turnManager;
         private Field _field;
 
@@ -22,6 +24,7 @@ namespace Runtime
         {
             _turnManager = TurnManager.Instance;
             _field = GetComponentInParent<Field>();
+            _audioSource = GetComponent<AudioSource>();
         }
 
         private bool TryOccupy()
@@ -34,6 +37,7 @@ namespace Runtime
             OccupiedPlayer = _turnManager.CurrentPlayer;
             _iconSpriteRenderer.color = OccupiedPlayer.Color;
             _iconSpriteRenderer.sprite = OccupiedPlayer.Icon;
+            _audioSource.Play();
             Occupied?.Invoke();
 
             return true;
