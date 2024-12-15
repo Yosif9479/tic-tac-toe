@@ -59,8 +59,12 @@ namespace Runtime
         private void OnCellOccupied()
         {
             Player winner = CheckForWinner(out WinCombination combination);
-            
-            if (winner is not null) OnWin(winner, combination);
+
+            if (winner is not null)
+            {
+                OnWin(winner, combination);
+                return;
+            }
 
             bool isDraw = CheckForDraw();
             
